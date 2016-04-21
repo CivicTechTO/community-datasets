@@ -24,8 +24,6 @@ TWITTER_ACCESS_TOKEN_SECRET = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
 
 REDIRECT_ENABLED = True
 
-FEED_URI = '../datasets/elected_officials_twitter/dataset.csv'
-FEED_FORMAT = 'csv'
 FEED_EXPORT_FIELDS = [
     'screen_name',
     'name',
