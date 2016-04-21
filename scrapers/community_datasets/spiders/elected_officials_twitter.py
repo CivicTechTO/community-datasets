@@ -5,7 +5,6 @@ from community_datasets.middlewares import TwitterListMembersRequest, to_item
 
 class ElectedOfficialsTwitterSpider(scrapy.Spider):
     name = "elected_officials_twitter"
-    allowed_domains = ["twitter.com"]
 
     def __init__(self, list_slug = None, *args, **kwargs):
         if not list_slug:
@@ -20,4 +19,12 @@ class ElectedOfficialsTwitterSpider(scrapy.Spider):
         members = response.users
 
         for member in members:
+            # Get original size
+            member['profile_image_url'] = member['profile_image_url'].replace('_normal', '')
+            if 'url' in member:
+                member['url'] = self.resolve_redirect(member['url'])
             yield to_item(member)
+
+    def resolve_redirect(self, url):
+        # TODO: Figure out how to resolve short urls
+        return url

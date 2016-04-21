@@ -22,6 +22,25 @@ TWITTER_CONSUMER_SECRET = os.environ['TWITTER_CONSUMER_SECRET']
 TWITTER_ACCESS_TOKEN_KEY = os.environ['TWITTER_ACCESS_TOKEN_KEY']
 TWITTER_ACCESS_TOKEN_SECRET = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
 
+REDIRECT_ENABLED = True
+
+FEED_URI = '../datasets/elected_officials_twitter/dataset.csv'
+FEED_FORMAT = 'csv'
+FEED_EXPORT_FIELDS = [
+    'screen_name',
+    'name',
+    'statuses_count',
+    'followers_count',
+    'friends_count',
+    'listed_count',
+    'created_at',
+    'profile_image_url',
+    'location',
+    'url',
+    'description',
+]
+
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'community_datasets (+http://www.yourdomain.com)'
 
@@ -61,6 +80,7 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'community_datasets.middlewares.TwitterDownloaderMiddleware': 543,
+    'scrapy.downloadermiddlewares.redirect.RedirectMiddleware': 1000,
 }
 
 # Enable or disable extensions
