@@ -1,3 +1,23 @@
+import twitter
+from scrapy import log
+from scrapy.http import Request, Response
+
+
+class TwitterListMembersRequest(Request):
+
+    def __init__(self, *args, **kwargs):
+        self.list_slug = kwargs.pop('list_slug', None)
+        super(TwitterListMembersRequest, self).__init__('http://twitter.com', dont_filter=True,**kwargs)
+
+
+class TwitterResponse(Response):
+
+    def __init__(self, *args, **kwargs):
+        self.users = kwargs.pop('users', None)
+        super(TwitterResponse, self).__init__('http://twitter.com', *args, **kwargs)
+
+
+# See: https://github.com/yall/scrapy-twitter
 class TwitterDownloaderMiddleware(object):
 
     def __init__(self,
@@ -25,15 +45,20 @@ class TwitterDownloaderMiddleware(object):
 
     def process_request(self, request, spider):
 
-        if isinstance(request, TwitterUserTimelineRequest):
-            tweets = self.api.GetUserTimeline(screen_name=request.screen_name,
-                                              count=request.count,
-                                              max_id=request.max_id)
-            return TwitterResponse(tweets=[tweet.AsDict() for tweet in tweets])
+        if isinstance(request, TwitterListMembersRequest):
+            users = self.api.GetListMembers(slug=request.list_slug.split('/')[1],
+                                             list_id=None,
+                                             owner_screen_name=request.list_slug.split('/')[0])
 
-        if isinstance(request, TwitterStreamFilterRequest):
-            tweets = self.api.GetStreamFilter(track=request.track)
-            return TwitterResponse(tweets=tweets)
+            return TwitterResponse(users=[user.AsDict() for user in users])
 
     def process_response(self, request, response, spider):
         return response
+
+from scrapy.item import DictItem, Field
+
+def to_item(dict_user):
+    field_list = dict_user.keys()
+    fields = {field_name: Field() for field_name in field_list}
+    item_class = type('UserItem', (DictItem,), {'fields': fields})
+    return item_class(dict_user)

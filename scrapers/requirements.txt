@@ -1,4 +1,4 @@
 python-slugify
-python-twitter
+python-twitter>=3.0rc1
 pyyaml
 scrapy>=1.1.0rc
