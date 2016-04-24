@@ -21,10 +21,18 @@ class ElectedOfficialsTwitterSpider(scrapy.Spider):
         for member in members:
             # Get original size
             member['profile_image_url'] = member['profile_image_url'].replace('_normal', '')
-            if 'url' in member:
-                member['url'] = self.resolve_redirect(member['url'])
-            yield to_item(member)
+            item = to_item(member)
+            if 'url' in item:
+                # Resolve the website url from the Twitter shortlink
+                request = scrapy.Request(item['url'], callback=self.resolve_redirect)
+                request.meta['dont_obey_robotstxt'] = True
+                request.meta['item'] = item
 
-    def resolve_redirect(self, url):
-        # TODO: Figure out how to resolve short urls
-        return url
+                yield request
+            else:
+                yield item
+
+    def resolve_redirect(self, response):
+        item = response.meta['item']
+        item['url'] = response.url
+        yield item
